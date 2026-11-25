@@ -2,26 +2,26 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#123b63"><meta name="description" content="أداة مستقلة لتسجيل IMEI وS/N لأجهزة التابلت وربطها ببيانات الطالبات">
+<meta name="theme-color" content="#123b63"><meta name="description" content="أداة مستقلة لتسجيل أرقام أجهزة التابلت حسب مسلسل الطالبة">
 <link rel="manifest" href="./manifest.json"><title>أداة ياسر الدقاق لتسجيل أجهزة التابلت</title>
 <style>
 :root{font-family:Tahoma,Arial,sans-serif;color:#182536;background:#f2f5f9}*{box-sizing:border-box}body{margin:0;padding-bottom:30px}header{background:#123b63;color:#fff;padding:20px 15px;text-align:center}h1{font-size:21px;margin:0 0 7px}header p{margin:0;font-size:13px;color:#dce9f5}main{max-width:900px;margin:18px auto;padding:0 13px}.panel{background:#fff;border:1px solid #e1e7ef;border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px #19324b0a}h2{font-size:17px;margin:0 0 13px;color:#123b63}.hint{font-size:13px;color:#64748b;line-height:1.8;margin:8px 0}label{font-size:13px;color:#46566a;display:block;margin:0 0 5px}input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font-size:15px;min-width:0;background:white}input.ltr{direction:ltr;text-align:left;font-family:Arial}input:focus,select:focus{outline:2px solid #9bc8ee;border-color:#2877b8}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.full{grid-column:1/-1}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}button,.filelabel{border:0;border-radius:10px;padding:12px 15px;font-size:14px;font-weight:700;cursor:pointer;background:#15558b;color:#fff}button.secondary{background:#e8eef5;color:#193c5c}button.danger{background:#a83232}button.green{background:#14734c}button:disabled{opacity:.5;cursor:not-allowed}video{width:100%;max-height:390px;background:#111;border-radius:12px;object-fit:cover}#cameraArea{display:none;margin-top:12px}.status{padding:10px;border-radius:9px;background:#edf4fa;color:#214c70;font-size:13px;line-height:1.7;margin-top:10px;min-height:38px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}th,td{padding:9px 7px;border-bottom:1px solid #e5eaf0;text-align:right}th{background:#f4f7fa;color:#31475d;white-space:nowrap}td.num{direction:ltr;text-align:left;font-family:Arial}.count{font-size:13px;color:#5d6b7c}.empty{text-align:center;color:#8391a2;padding:20px}.smallbtn{padding:6px 9px;font-size:12px;background:#e8eef5;color:#193c5c}.studentbox{background:#f7fafc;border:1px solid #e4ebf2;padding:12px;border-radius:10px;margin-top:10px}.studentbox strong{color:#123b63}.muted{color:#728196;font-size:12px}footer{text-align:center;color:#8491a0;font-size:12px;padding:8px}@media(max-width:560px){.grid{grid-template-columns:1fr}.full{grid-column:auto}button{flex:1}h1{font-size:18px}}
 </style></head>
 <body>
-<header><h1>أداة ياسر الدقاق لتسجيل أرقام التابلت</h1><p>قراءة IMEI وS/N بالكاميرا وربطهما ببيانات الطالبة</p></header>
+<header><h1>أداة ياسر الدقاق لتسجيل أرقام التابلت</h1><p>قراءة IMEI وS/N بالكاميرا وتسجيلهما في كشف الطالبات</p></header>
 <main>
 <section class="panel">
 <h2>١- تحميل كشف الطالبات</h2>
-<label for="studentFile">اختر ملف Excel أو CSV الذي يحتوي على اسم الطالبة والرقم القومي وكود الطالبة</label>
+<label for="studentFile">ارفع كشف Excel الذي يحتوي على رؤوس الأعمدة: م، كود الطالب، اسم الطالب، رقم مسلسل الجهاز SN، رقم IMEI، رقم بوليصة التأمين، التوقيع، الفصل</label>
 <input id="studentFile" type="file" accept=".xlsx,.xls,.csv">
 <div id="rosterStatus" class="status">لم يتم تحميل كشف الطالبات بعد.</div>
-<p class="hint">تحاول الأداة التعرف على أعمدة الاسم والرقم القومي والكود من عناوينها. بعد التحميل اختر الطالبة التي تستلم الجهاز.</p>
+<p class="hint">يجب أن تكون رؤوس الأعمدة في الصف الأول كما كتبتها. اختيار الطالبة سيكون برقم مسلسلها (م) فقط.</p>
 </section>
 <section class="panel">
 <h2>٢- اختيار الطالبة</h2>
 <div class="grid">
-<div class="full"><label for="studentSearch">ابحث باسم الطالبة أو كودها أو رقمها القومي</label><input id="studentSearch" placeholder="اكتب جزءًا من الاسم أو الكود أو الرقم القومي" autocomplete="off"></div>
-<div class="full"><label for="studentSelect">اختر الطالبة من النتائج</label><select id="studentSelect"><option value="">حمّل الكشف أولًا</option></select></div>
+
+<div class="full"><label for="studentSelect">اختر مسلسل الطالبة (م)</label><select id="studentSelect"><option value="">حمّل الكشف أولًا</option></select></div>
 </div>
 <div id="selectedStudent" class="studentbox muted">لم يتم اختيار طالبة.</div>
 </section>
@@ -44,7 +44,7 @@
 <section class="panel">
 <h2>٥- الأجهزة المسجلة <span class="count" id="count">(0)</span></h2>
 <div class="actions" style="margin-bottom:12px"><button id="exportBtn">تصدير Excel</button><button id="csvBtn" class="secondary">تصدير CSV</button><button id="backupBtn" class="secondary">نسخة احتياطية JSON</button><button id="importBtn" class="secondary">استيراد نسخة</button><input id="importFile" type="file" accept=".json,application/json" hidden><button id="deleteAllBtn" class="danger">حذف الكل</button></div>
-<div class="tablewrap"><table><thead><tr><th>م</th><th>اسم الطالبة</th><th>الرقم القومي</th><th>كود الطالبة</th><th>IMEI</th><th>S/N</th><th>وقت التسجيل</th><th>إجراء</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="empty">لا توجد أجهزة مسجلة حتى الآن</td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>م</th><th>م</th><th>كود الطالب</th><th>اسم الطالب</th><th>رقم مسلسل الجهاز SN</th><th>رقم IMEI</th><th>رقم بوليصة التأمين</th><th>التوقيع</th><th>الفصل</th><th>إجراء</th></tr></thead><tbody id="rows"><tr><td colspan="9" class="empty">لا توجد أجهزة مسجلة حتى الآن</td></tr></tbody></table></div>
 <p class="hint">تُحفظ البيانات محليًا على هذا الجهاز والمتصفح فقط. صدّر ملف Excel أو نسخة JSON بشكل دوري، ولا تمسح بيانات المتصفح قبل حفظ نسخة احتياطية.</p>
 </section>
 </main><footer>أداة مستقلة — لا يتم إرسال بيانات الطالبات أو الأجهزة إلى خادم</footer>
@@ -54,45 +54,48 @@
 const $=id=>document.getElementById(id);
 const el={video:$('video'),area:$('cameraArea'),status:$('status'),imei:$('imei'),serial:$('serial'),notes:$('notes')};
 let stream=null,records=[],students=[],worker=null;
-const STORE='yasser_tablet_scanner_records_v2';
+const STORE='yasser_tablet_scanner_roster_v3';
 function say(s){el.status.textContent=s}
 function rosterSay(s){$('rosterStatus').textContent=s}
 function load(){try{records=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(records))records=[]}catch{records=[]}render()}
 function persist(){try{localStorage.setItem(STORE,JSON.stringify(records));render()}catch(e){say('تعذر الحفظ في مساحة المتصفح. صدّر نسخة احتياطية.')}} 
 function render(){
- $('count').textContent='('+records.length+')';const body=$('rows');body.replaceChildren();
- if(!records.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=8;td.className='empty';td.textContent='لا توجد أجهزة مسجلة حتى الآن';tr.append(td);body.append(tr);return}
- records.forEach((r,i)=>{const tr=document.createElement('tr');[String(i+1),r.studentName||'',r.nationalId||'',r.studentCode||'',r.imei||'',r.serial||'',r.time||''].forEach((v,j)=>{const td=document.createElement('td');td.textContent=v;if(j>=2&&j<=5)td.className='num';tr.append(td)});const td=document.createElement('td'),b=document.createElement('button');b.className='smallbtn';b.textContent='حذف';b.onclick=()=>{if(confirm('حذف هذا السجل؟')){records.splice(i,1);persist()}};td.append(b);tr.append(td);body.append(tr)})
+ $('count').textContent='('+students.length+')';const body=$('rows');body.replaceChildren();
+ if(!students.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=9;td.className='empty';td.textContent='ارفع كشف الطالبات لعرض البيانات';tr.append(td);body.append(tr);return}
+ students.forEach((s,i)=>{const tr=document.createElement('tr');[s.m,s.code,s.name,s.serial,s.imei,s.policy,s.signature,s.className].forEach((v,j)=>{const td=document.createElement('td');td.textContent=v||'';if(j===0||j===1||j===3||j===4)td.className='num';tr.append(td)});const td=document.createElement('td'),b=document.createElement('button');b.className='smallbtn';b.textContent='اختيار';b.onclick=()=>{$('studentSelect').value=String(i);showStudent()};td.append(b);tr.append(td);body.append(tr)})
 }
-function norm(s){return String(s??'').trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ')}
-function headerIndex(headers,tests){return headers.findIndex(h=>tests.some(t=>norm(h).includes(norm(t))))}
+function norm(s){return String(s??'').trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\\s+/g,' ')}
+function exactHeader(headers,wanted){return headers.findIndex(h=>norm(h)===norm(wanted))}
 function parseRoster(rows){
  if(!rows.length)throw Error('الملف فارغ');
  const headers=rows[0].map(x=>String(x??'').trim());
- let ni=headerIndex(headers,['اسم الطالبة','اسم الطالب','الاسم','اسم']),qi=headerIndex(headers,['الرقم القومي','رقم قومي','الرقم القومى','قومي']),ci=headerIndex(headers,['كود الطالبة','كود الطالب','كود','الكود']);
- if(ni<0||qi<0||ci<0)throw Error('لم أتعرف تلقائيًا على الأعمدة الثلاثة. تأكد أن الصف الأول يحتوي عناوين واضحة: اسم الطالبة، الرقم القومي، كود الطالبة.');
- students=rows.slice(1).filter(r=>r&&r.some(v=>String(v??'').trim())).map(r=>({name:String(r[ni]??'').trim(),nationalId:String(r[qi]??'').trim(),code:String(r[ci]??'').trim()})).filter(s=>s.name||s.code||s.nationalId);
- if(!students.length)throw Error('لم أجد سجلات طالبات في الملف.');
- rosterSay('تم تحميل '+students.length+' طالبة. الأعمدة المستخدمة: '+headers[ni]+' / '+headers[qi]+' / '+headers[ci]+'.');
- fillStudents();
+ const required=['م','كود الطالب','اسم الطالب','رقم مسلسل الجهاز SN','رقم IMEI','رقم بوليصة التأمين','التوقيع','الفصل'];
+ const idx=required.map(h=>exactHeader(headers,h));
+ const missing=required.filter((h,i)=>idx[i]<0);
+ if(missing.length)throw Error('لم يتم العثور على رؤوس الأعمدة التالية كما هي: '+missing.join('، ')+'. تأكد أن الرؤوس في الصف الأول.');
+ students=rows.slice(1).filter(r=>r&&r.some(v=>String(v??'').trim())).map(r=>({
+  m:String(r[idx[0]]??'').trim(),code:String(r[idx[1]]??'').trim(),name:String(r[idx[2]]??'').trim(),
+  serial:String(r[idx[3]]??'').trim(),imei:String(r[idx[4]]??'').trim(),policy:String(r[idx[5]]??'').trim(),
+  signature:String(r[idx[6]]??'').trim(),className:String(r[idx[7]]??'').trim()
+ })).filter(s=>s.m);
+ if(!students.length)throw Error('لم أجد صفوف طالبات تحتوي على مسلسل في عمود «م».');
+ rosterSay('تم تحميل '+students.length+' سجلًا بنجاح. تم التعرف على الأعمدة الثمانية المطلوبة.');
+ fillStudents();render();
 }
 function fillStudents(){
- const q=norm($('studentSearch').value),sel=$('studentSelect'),previous=sel.value;
- const matches=students.map((s,i)=>({...s,index:i})).filter(s=>!q||norm(s.name+' '+s.code+' '+s.nationalId).includes(q));
- sel.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=matches.length?'اختر الطالبة ('+matches.length+' نتيجة)':'لا توجد نتائج مطابقة';sel.append(first);
- matches.forEach(s=>{const o=document.createElement('option');o.value=String(s.index);o.textContent=s.name+' — '+s.code;sel.append(o)});
- if(previous&&matches.some(s=>String(s.index)===previous))sel.value=previous;
+ const sel=$('studentSelect'),previous=sel.value;sel.replaceChildren();
+ const first=document.createElement('option');first.value='';first.textContent=students.length?'اختر مسلسل الطالبة (م)':'حمّل الكشف أولًا';sel.append(first);
+ students.forEach((s,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=s.m;sel.append(o)});
+ if(previous&&Number(previous)<students.length)sel.value=previous;
  showStudent();
 }
 function currentStudent(){const i=$('studentSelect').value;return i===''?null:students[Number(i)]||null}
-function showStudent(){const s=currentStudent();$('selectedStudent').textContent=s?'الطالبة: '+s.name+' | الرقم القومي: '+s.nationalId+' | الكود: '+s.code:'لم يتم اختيار طالبة.'}
+function showStudent(){const s=currentStudent();$('selectedStudent').textContent=s?'المسلسل: '+s.m+' | الاسم: '+s.name+' | الكود: '+s.code+' | الفصل: '+s.className:'لم يتم اختيار طالبة.';if(s){el.imei.value=s.imei||'';el.serial.value=s.serial||''}}
 async function readFile(file){
  if(!file)return;
- try{
-  if(!window.XLSX)throw Error('مكتبة قراءة Excel غير متاحة. تأكد من اتصال الإنترنت ثم أعد المحاولة.');
-  const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-  parseRoster(rows);
- }catch(e){students=[];$('studentSelect').innerHTML='<option value="">تعذر تحميل الكشف</option>';rosterSay(e.message||'تعذر قراءة الملف.')}
+ try{if(!window.XLSX)throw Error('مكتبة قراءة Excel غير متاحة. تأكد من اتصال الإنترنت ثم أعد المحاولة.');
+ const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array',raw:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});parseRoster(rows)}
+ catch(e){students=[];$('studentSelect').innerHTML='<option value="">تعذر تحميل الكشف</option>';rosterSay(e.message||'تعذر قراءة الملف.');render()}
 }
 async function startCamera(){
  if(!navigator.mediaDevices?.getUserMedia){say('المتصفح لا يدعم الكاميرا. افتح الرابط عبر HTTPS أو أدخل الأرقام يدويًا.');return}
@@ -126,25 +129,15 @@ async function capture(){
  }catch(e){say('حدثت مشكلة أثناء قراءة الصورة. أدخل الرقمين يدويًا.')}finally{$('captureBtn').disabled=false}
 }
 function save(){
- const s=currentStudent(),imei=el.imei.value.trim().replace(/\s/g,''),serial=el.serial.value.trim().replace(/\s/g,''),notes=el.notes.value.trim();
- if(!s){say('اختر الطالبة أولًا من القائمة.');return}
+ const s=currentStudent(),imei=el.imei.value.trim().replace(/\\s/g,''),serial=el.serial.value.trim().replace(/\\s/g,'');
+ if(!s){say('اختر مسلسل الطالبة أولًا.');return}
  if(!imei&&!serial){say('أدخل رقم IMEI أو S/N على الأقل.');return}
- const dup=records.find(r=>(imei&&r.imei===imei)||(serial&&r.serial===serial));
- if(dup&&!confirm('هذا الرقم مسجل من قبل للطالبة '+(dup.studentName||'أخرى')+'. هل تريد الحفظ رغم التكرار؟'))return;
- records.push({studentName:s.name,nationalId:s.nationalId,studentCode:s.code,imei,serial,notes,time:new Date().toLocaleString('ar-EG')});persist();
- el.imei.value='';el.serial.value='';el.notes.value='';say('تم حفظ الجهاز للطالبة '+s.name+'. اختر الطالبة التالية أو سجّل جهازًا آخر.');
+ const dup=students.find(x=>x!==s&&((imei&&x.imei===imei)||(serial&&x.serial===serial)));
+ if(dup&&!confirm('هذا الرقم موجود بالفعل في سجل المسلسل '+dup.m+'. هل تريد تسجيله للطالبة الحالية؟'))return;
+ s.imei=imei;s.serial=serial;render();say('تم تحديث بيانات الجهاز للطالبة ذات المسلسل '+s.m+'. لا تنس تصدير الكشف بعد الانتهاء.');
 }
-function exportRows(){return records.map((r,i)=>({'مسلسل':i+1,'اسم الطالبة':r.studentName||'','الرقم القومي':r.nationalId||'','كود الطالبة':r.studentCode||'','رقم IMEI':r.imei||'','رقم S/N':r.serial||'','ملاحظات':r.notes||'','وقت التسجيل':r.time||''}))}
-function csv(){const rows=[['مسلسل','اسم الطالبة','الرقم القومي','كود الطالبة','رقم IMEI','رقم S/N','ملاحظات','وقت التسجيل'],...exportRows().map(Object.values)];const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';download(new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'سجل_أجهزة_التابلت.csv')}
+function exportRows(){return students.map(s=>({'م':s.m,'كود الطالب':s.code,'اسم الطالب':s.name,'رقم مسلسل الجهاز SN':s.serial,'رقم IMEI':s.imei,'رقم بوليصة التأمين':s.policy,'التوقيع':s.signature,'الفصل':s.className}))}
+function csv(){const heads=['م','كود الطالب','اسم الطالب','رقم مسلسل الجهاز SN','رقم IMEI','رقم بوليصة التأمين','التوقيع','الفصل'];const rows=[heads,...exportRows().map(Object.values)];const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';download(new Blob(['\\ufeff'+rows.map(r=>r.map(q).join(',')).join('\\r\\n')],{type:'text/csv;charset=utf-8'}),'كشف_أجهزة_التابلت.csv')}
 function download(blob,name){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
-function exportXlsx(){if(!records.length){say('لا توجد بيانات لتصديرها.');return}if(!window.XLSX){say('مكتبة Excel غير متاحة؛ استخدم CSV.');return}const ws=XLSX.utils.json_to_sheet(exportRows());ws['!cols']=[{wch:9},{wch:30},{wch:20},{wch:16},{wch:20},{wch:20},{wch:24},{wch:23}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'تسليم التابلت');XLSX.writeFile(wb,'سجل_أجهزة_التابلت.xlsx')}
-$('studentFile').addEventListener('change',e=>readFile(e.target.files[0]));$('studentSearch').addEventListener('input',fillStudents);$('studentSelect').addEventListener('change',showStudent);
-$('startBtn').onclick=startCamera;$('stopBtn').onclick=stopCamera;$('captureBtn').onclick=capture;$('saveBtn').onclick=save;
-$('clearBtn').onclick=()=>{el.imei.value='';el.serial.value='';el.notes.value='';say('تم تفريغ خانات الجهاز.')};
-$('exportBtn').onclick=exportXlsx;$('csvBtn').onclick=csv;
-$('backupBtn').onclick=()=>download(new Blob([JSON.stringify(records,null,2)],{type:'application/json'}),'نسخة_احتياطية_أجهزة_التابلت.json');
-$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const a=JSON.parse(await f.text());if(!Array.isArray(a))throw Error();if(confirm('سيتم دمج '+a.length+' سجل مع السجلات الحالية. متابعة؟')){records.push(...a.filter(x=>x&&typeof x==='object'));persist();say('تم استيراد النسخة الاحتياطية.')}}catch{say('ملف النسخة الاحتياطية غير صالح.')}e.target.value=''};
-$('deleteAllBtn').onclick=()=>{if(records.length&&confirm('هل أنت متأكد من حذف جميع السجلات؟ صدّر نسخة أولًا إن احتجت إليها.')){records=[];persist();say('تم حذف جميع السجلات.')}};
-window.addEventListener('pagehide',stopCamera);load();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
-})();
-</script></body></html>
+function exportXlsx(){if(!students.length){say('لا توجد بيانات لتصديرها.');return}if(!window.XLSX){say('مكتبة Excel غير متاحة؛ استخدم CSV.');return}const ws=XLSX.utils.json_to_sheet(exportRows());ws['!cols']=[{wch:8},{wch:16},{wch:30},{wch:24},{wch:20},{wch:22},{wch:18},{wch:12}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'كشف تسليم التابلت');XLSX.writeFile(wb,'كشف_أجهزة_التابلت.xlsx')}
+>
