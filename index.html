@@ -57,7 +57,18 @@ let stream=null,records=[],students=[],worker=null;
 const STORE='yasser_tablet_scanner_roster_v3';
 function say(s){el.status.textContent=s}
 function rosterSay(s){$('rosterStatus').textContent=s}
-function load(){try{students=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(students))students=[]}catch{students=[]}fillStudents();render()}
+function load(){
+ try{
+  students=JSON.parse(localStorage.getItem(STORE)||'[]');
+  if(!Array.isArray(students))students=[];
+ }catch{students=[]}
+ fillStudents();render();
+ if(students.length){
+  rosterSay('تم استرجاع '+students.length+' سجلًا محفوظًا من آخر استخدام. لا تحتاج إلى رفع الكشف مرة أخرى.');
+ }else{
+  rosterSay('لم يتم تحميل كشف محفوظ بعد. ارفع الكشف مرة واحدة للبدء.');
+ }
+}
 function persist(){try{localStorage.setItem(STORE,JSON.stringify(students));render()}catch(e){say('تعذر الحفظ في مساحة المتصفح. صدّر نسخة احتياطية.')}} 
 function render(){
  $('count').textContent='('+students.length+')';const body=$('rows');body.replaceChildren();
@@ -73,11 +84,20 @@ function parseRoster(rows){
  const idx=required.map(h=>exactHeader(headers,h));
  const missing=required.filter((h,i)=>idx[i]<0);
  if(missing.length)throw Error('لم يتم العثور على رؤوس الأعمدة التالية كما هي: '+missing.join('، ')+'. تأكد أن الرؤوس في الصف الأول.');
- students=rows.slice(1).filter(r=>r&&r.some(v=>String(v??'').trim())).map(r=>({
-  m:String(r[idx[0]]??'').trim(),code:String(r[idx[1]]??'').trim(),name:String(r[idx[2]]??'').trim(),
-  serial:String(r[idx[3]]??'').trim(),imei:String(r[idx[4]]??'').trim(),policy:String(r[idx[5]]??'').trim(),
-  signature:String(r[idx[6]]??'').trim(),className:String(r[idx[7]]??'').trim()
- })).filter(s=>s.m);
+ const previousByM=new Map(students.map(s=>[String(s.m||'').trim(),s]));
+ const uploaded=rows.slice(1).filter(r=>r&&r.some(v=>String(v??'').trim())).map(r=>{
+  const m=String(r[idx[0]]??'').trim();
+  const prior=previousByM.get(m)||{};
+  const fileSerial=String(r[idx[3]]??'').trim(),fileImei=String(r[idx[4]]??'').trim();
+  return {
+   m,code:String(r[idx[1]]??'').trim(),name:String(r[idx[2]]??'').trim(),
+   // لا تستبدل أرقام الجهاز المحفوظة بخانات فارغة في ملف الكشف الأصلي.
+   serial:fileSerial||prior.serial||'',imei:fileImei||prior.imei||'',
+   policy:String(r[idx[5]]??'').trim(),signature:String(r[idx[6]]??'').trim(),
+   className:String(r[idx[7]]??'').trim()
+  };
+ }).filter(s=>s.m);
+ students=uploaded;
  if(!students.length)throw Error('لم أجد صفوف طالبات تحتوي على مسلسل في عمود «م».');
  rosterSay('تم تحميل '+students.length+' سجلًا بنجاح. تم التعرف على الأعمدة الثمانية المطلوبة.');
  fillStudents();persist();
