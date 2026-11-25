@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123b63">
+<meta name="description" content="أداة مستقلة لتسجيل باركود ورقم S/N التابلت وتصديرهما إلى Excel">
+<link rel="manifest" href="./manifest.json">
+<title>أداة ياسر الدقاق لتسجيل أرقام التابلت</title>
+<style>
+:root{font-family:Tahoma,Arial,sans-serif;color:#182536;background:#f2f5f9;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;padding:0 0 30px}header{background:#123b63;color:white;padding:20px 16px;text-align:center;box-shadow:0 3px 12px #102a4430}h1{font-size:21px;margin:0 0 7px}header p{margin:0;font-size:13px;color:#dce9f5}
+main{max-width:850px;margin:18px auto;padding:0 13px}.panel{background:white;border:1px solid #e1e7ef;border-radius:15px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px #19324b0a}
+h2{font-size:17px;margin:0 0 13px;color:#123b63}.hint{font-size:13px;color:#64748b;line-height:1.7;margin:8px 0}
+video{width:100%;max-height:390px;background:#111;border-radius:12px;object-fit:cover}#cameraArea{display:none;margin-top:12px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+button,.filelabel{border:0;border-radius:10px;padding:12px 15px;font-size:14px;font-weight:700;cursor:pointer;background:#15558b;color:#fff}
+button.secondary{background:#e8eef5;color:#193c5c}button.danger{background:#a83232}button.green{background:#14734c}
+button:disabled{opacity:.55;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{font-size:13px;color:#46566a;display:block;margin-bottom:5px}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;direction:ltr;text-align:left;min-width:0}
+input:focus{outline:2px solid #9bc8ee;border-color:#2877b8}.full{grid-column:1/-1}
+.status{padding:10px;border-radius:9px;background:#edf4fa;color:#214c70;font-size:13px;line-height:1.6;margin-top:10px;min-height:38px}
+.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:570px;font-size:13px}th,td{padding:10px 8px;border-bottom:1px solid #e5eaf0;text-align:right}th{background:#f4f7fa;color:#31475d;white-space:nowrap}td.num{direction:ltr;text-align:left;font-family:Arial}
+.count{font-size:13px;color:#5d6b7c;margin-right:5px}.empty{text-align:center;color:#8391a2;padding:20px}
+.smallbtn{padding:6px 9px;font-size:12px;background:#e8eef5;color:#193c5c}
+footer{text-align:center;color:#8491a0;font-size:12px;padding:8px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.full{grid-column:auto}button{flex:1}.actions button{min-width:125px}h1{font-size:18px}}
+</style>
+</head>
+<body>
+<header><h1>أداة ياسر الدقاق لتسجيل أرقام التابلت</h1><p>مسح الباركود وتسجيل الرقم التسلسلي ثم التصدير إلى Excel</p></header>
+<main>
+<section class="panel">
+<h2>١- تصوير بيانات الجهاز</h2>
+<p class="hint">وجّه الكاميرا إلى الورقة بحيث يظهر الباركود ورقم S/N معًا. عند قراءة الباركود ستتوقف الكاميرا مؤقتًا، وتحاول الأداة قراءة الرقم التسلسلي من الصورة لتراجعه قبل الحفظ.</p>
+<div class="actions">
+<button id="startBtn">تشغيل الكاميرا</button>
+<button id="stopBtn" class="secondary" disabled>إيقاف الكاميرا</button>
+</div>
+<div id="cameraArea"><video id="video" playsinline autoplay muted></video></div>
+<div id="status" class="status" role="status">جاهز. اسمح باستخدام الكاميرا عند الطلب.</div>
+</section>
+<section class="panel">
+<h2>٢- مراجعة البيانات وحفظها</h2>
+<div class="grid">
+<div><label for="barcode">الباركود</label><input id="barcode" autocomplete="off" placeholder="يُقرأ تلقائيًا أو أدخله يدويًا"></div>
+<div><label for="serial">الرقم التسلسلي S/N</label><input id="serial" autocomplete="off" placeholder="راجع الرقم قبل الحفظ"></div>
+<div class="full"><label for="notes">ملاحظات (اختياري)</label><input id="notes" placeholder="اسم الطالبة أو ملاحظة"></div>
+</div>
+<div class="actions"><button id="saveBtn" class="green">حفظ الجهاز</button><button id="clearBtn" class="secondary">تفريغ الخانات</button></div>
+<p class="hint">يمكنك أيضًا إدخال الرقمين يدويًا إذا لم تتعرف الكاميرا على أحدهما.</p>
+</section>
+<section class="panel">
+<h2>٣- الأجهزة المسجلة <span class="count" id="count">(0)</span></h2>
+<div class="actions" style="margin-bottom:12px">
+<button id="exportBtn">تصدير Excel</button>
+<button id="csvBtn" class="secondary">تصدير CSV</button>
+<button id="backupBtn" class="secondary">نسخة احتياطية JSON</button>
+<button id="importBtn" class="secondary">استيراد نسخة</button>
+<input id="importFile" type="file" accept=".json,application/json" hidden>
+<button id="deleteAllBtn" class="danger">حذف الكل</button>
+</div>
+<div class="tablewrap"><table><thead><tr><th>م</th><th>الباركود</th><th>رقم S/N</th><th>ملاحظات</th><th>وقت التسجيل</th><th>إجراء</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="empty">لا توجد أجهزة مسجلة حتى الآن</td></tr></tbody></table></div>
+<p class="hint">تُحفظ البيانات على هذا الجهاز والمتصفح فقط. نزّل نسخة Excel أو JSON بشكل دوري، ولا تمسح بيانات المتصفح قبل حفظ نسخة احتياطية.</p>
+</section>
+</main>
+<footer>نسخة مستقلة — لا يتم إرسال بيانات الأجهزة إلى خادم</footer>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(()=> {
+const $=id=>document.getElementById(id);
+const els={video:$('video'),area:$('cameraArea'),status:$('status'),barcode:$('barcode'),serial:$('serial'),notes:$('notes')};
+let stream=null,detector=null,scanTimer=null,scanning=false,records=[];
+const STORE='yasser_tablet_scanner_records_v1';
+function say(s){els.status.textContent=s}
+function load(){try{records=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(records))records=[]}catch{records=[]}render()}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify(records));render()}catch(e){say('تعذر الحفظ: مساحة التخزين ممتلئة. صدّر نسخة احتياطية ثم أفرغ بعض البيانات.')}}
+function render(){
+ $('count').textContent='('+records.length+')';
+ const body=$('rows');body.replaceChildren();
+ if(!records.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.className='empty';td.textContent='لا توجد أجهزة مسجلة حتى الآن';tr.append(td);body.append(tr);return}
+ records.forEach((r,i)=>{const tr=document.createElement('tr');
+ [String(i+1),r.barcode,r.serial,r.notes||'—',r.time].forEach((v,j)=>{const td=document.createElement('td');td.textContent=v; if(j===1||j===2)td.className='num';tr.append(td)});
+ const td=document.createElement('td'),b=document.createElement('button');b.className='smallbtn';b.textContent='حذف';b.onclick=()=>{if(confirm('حذف هذا الجهاز من القائمة؟')){records.splice(i,1);persist()}};td.append(b);tr.append(td);body.append(tr);
+ });
+}
+async function stopCamera(){scanning=false;if(scanTimer)clearTimeout(scanTimer);scanTimer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}els.video.srcObject=null;els.area.style.display='none';$('startBtn').disabled=false;$('stopBtn').disabled=true}
+async function startCamera(){
+ if(!navigator.mediaDevices?.getUserMedia){say('المتصفح لا يدعم تشغيل الكاميرا. افتح الأداة عبر HTTPS أو استخدم الإدخال اليدوي.');return}
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+  els.video.srcObject=stream;await els.video.play();els.area.style.display='block';
+  $('startBtn').disabled=true;$('stopBtn').disabled=false;scanning=true;
+  if('BarcodeDetector' in window){
+   let formats=['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','codabar','data_matrix','pdf417'];
+   try{const supported=await BarcodeDetector.getSupportedFormats();formats=formats.filter(f=>supported.includes(f));detector=new BarcodeDetector({formats})}catch{detector=new BarcodeDetector()}
+   say('الكاميرا تعمل. قرّب الورقة وثبّت الصورة حتى يظهر الباركود.');
+   scanLoop();
+  }else{say('الكاميرا تعمل، لكن هذا المتصفح لا يدعم قارئ الباركود المدمج. أدخل الباركود يدويًا، ويمكنك الاستفادة من التصوير لمراجعة الورقة.')}
+ }catch(e){say('لم نتمكن من فتح الكاميرا. تأكد من السماح للمتصفح باستخدامها وأن الصفحة تعمل عبر HTTPS.');await stopCamera()}
+}
+async function scanLoop(){
+ if(!scanning||!detector)return;
+ try{const hits=await detector.detect(els.video);if(hits.length){els.barcode.value=hits[0].rawValue||'';say('تم التقاط الباركود. نحاول الآن قراءة S/N من الصورة؛ راجع النتيجة يدويًا.');await captureAndOcr();await stopCamera();return}}catch(e){}
+ scanTimer=setTimeout(scanLoop,450);
+}
+async function captureAndOcr(){
+ if(!window.Tesseract){say('تم التقاط الباركود. مكتبة قراءة النص غير متاحة؛ اكتب S/N يدويًا.');return}
+ try{
+  const c=document.createElement('canvas');c.width=els.video.videoWidth;c.height=els.video.videoHeight;
+  c.getContext('2d').drawImage(els.video,0,0,c.width,c.height);
+  say('جارٍ محاولة قراءة النص من الصورة…');
+  const result=await Tesseract.recognize(c,'eng',{logger:m=>{if(m.status==='recognizing text')say('جارٍ قراءة رقم S/N… '+Math.round((m.progress||0)*100)+'%')}});
+  const text=result.data.text||'';
+  const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
+  const candidate=lines.find(x=>/(S\s*\/?\s*N|SERIAL|SN)\s*[:#-]?/i.test(x))||lines.find(x=>/[A-Z0-9-]{7,}/i.test(x));
+  if(candidate){const cleaned=candidate.replace(/.*?(?:S\s*\/?\s*N|SERIAL|SN)\s*[:#-]?\s*/i,'').trim();els.serial.value=(cleaned||candidate).replace(/\s/g,'').slice(0,40);say('انتهت محاولة القراءة. راجع S/N جيدًا؛ قد يخطئ OCR مع الخط الصغير أو الصورة غير الواضحة.')}
+  else say('تم التقاط الباركود لكن لم نعثر على S/N بوضوح. أدخله يدويًا من الورقة.');
+ }catch(e){say('تم التقاط الباركود. تعذرت قراءة S/N تلقائيًا؛ أدخله يدويًا.')}
+}
+function save(){
+ const barcode=els.barcode.value.trim(),serial=els.serial.value.trim(),notes=els.notes.value.trim();
+ if(!barcode&&!serial){say('أدخل الباركود أو رقم S/N على الأقل قبل الحفظ.');return}
+ const duplicate=records.find(r=>(barcode&&r.barcode===barcode)||(serial&&r.serial===serial));
+ if(duplicate&&!confirm('تنبيه: يوجد جهاز مسجل من قبل بنفس الباركود أو S/N. هل تريد الحفظ رغم التكرار؟'))return;
+ records.push({barcode,serial,notes,time:new Date().toLocaleString('ar-EG')});persist();
+ els.barcode.value='';els.serial.value='';els.notes.value='';els.barcode.focus();say('تم حفظ الجهاز بنجاح. يمكنك مسح الجهاز التالي.');
+}
+function csv(){
+ const data=[['م','الباركود','رقم S/N','ملاحظات','وقت التسجيل'],...records.map((r,i)=>[i+1,r.barcode,r.serial,r.notes,r.time])];
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const content='\ufeff'+data.map(row=>row.map(quote).join(',')).join('\r\n');
+ download(new Blob([content],{type:'text/csv;charset=utf-8'}),'أرقام_التابلت.csv');
+}
+function download(blob,name){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function exportXlsx(){
+ if(!records.length){say('لا توجد بيانات لتصديرها.');return}
+ if(!window.XLSX){say('مكتبة Excel غير متاحة؛ استخدم زر تصدير CSV.');return}
+ const rows=records.map((r,i)=>({'م':i+1,'الباركود':r.barcode,'رقم S/N':r.serial,'ملاحظات':r.notes,'وقت التسجيل':r.time}));
+ const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[{wch:7},{wch:25},{wch:25},{wch:30},{wch:24}];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'أرقام التابلت');XLSX.writeFile(wb,'أرقام_التابلت.xlsx');
+}
+$('startBtn').onclick=startCamera;$('stopBtn').onclick=stopCamera;$('saveBtn').onclick=save;
+$('clearBtn').onclick=()=>{els.barcode.value='';els.serial.value='';els.notes.value='';say('تم تفريغ الخانات.')};
+$('exportBtn').onclick=exportXlsx;$('csvBtn').onclick=csv;
+$('backupBtn').onclick=()=>download(new Blob([JSON.stringify(records,null,2)],{type:'application/json'}),'نسخة_احتياطية_أرقام_التابلت.json');
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const a=JSON.parse(await f.text());if(!Array.isArray(a))throw Error();if(!confirm('سيتم دمج '+a.length+' سجل مع السجلات الحالية. متابعة؟'))return;records.push(...a.filter(x=>x&&typeof x==='object'));persist();say('تم استيراد النسخة الاحتياطية.')}catch{say('ملف النسخة الاحتياطية غير صالح.')}e.target.value=''};
+$('deleteAllBtn').onclick=()=>{if(records.length&&confirm('هل أنت متأكد من حذف جميع الأجهزة المسجلة؟ يُفضّل تصدير نسخة أولًا.')){records=[];persist();say('تم حذف جميع السجلات.')}};
+window.addEventListener('pagehide',stopCamera);load();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body></html>
