@@ -1,0 +1,11 @@
+{
+  "name": "أداة ياسر الدقاق لتسجيل أرقام التابلت",
+  "short_name": "ماسح التابلت",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f9",
+  "theme_color": "#123b63",
+  "description": "تسجيل الباركود ورقم S/N للتابلت وتصديرهما إلى Excel"
+}
