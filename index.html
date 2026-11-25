@@ -104,29 +104,78 @@ async function startCamera(){
 }
 function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}el.video.srcObject=null;el.area.style.display='none';$('startBtn').disabled=false;$('stopBtn').disabled=true}
 function parseOcr(text){
- const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
- const digits=text.replace(/[Oo]/g,'0').replace(/[Il|]/g,'1').match(/\d[\d\s-]{11,20}\d/g)||[];
- const imei=digits.map(x=>x.replace(/\D/g,'')).find(x=>x.length===15)||'';
+ const lines=String(text||'').split(/\n/).map(x=>x.trim()).filter(Boolean);
+ const cleanDigits=s=>String(s||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2').replace(/[^0-9]/g,'');
+ let imei='';
+ // Prefer digits found on the same line as the IMEI label, then inspect nearby lines.
+ for(let i=0;i<lines.length&&!imei;i++){
+  if(/IMEI|I[M|]EI|1MEI/i.test(lines[i])){
+   for(const part of [lines[i],lines[i+1]||'',lines[i+2]||'']){
+    const compact=cleanDigits(part);
+    const m=compact.match(/\d{15}/);
+    if(m){imei=m[0];break}
+   }
+  }
+ }
+ // Fallback: search all OCR text for a 15-digit sequence, tolerating common OCR substitutions.
+ if(!imei){
+  const compact=cleanDigits(text);
+  const m=compact.match(/\d{15}/);
+  if(m)imei=m[0];
+ }
  if(imei)el.imei.value=imei;
- const serialLine=lines.find(x=>/(S\s*\/?\s*N|SERIAL|SN)\s*[:#-]?/i.test(x));
- if(serialLine){let v=serialLine.replace(/.*?(?:S\s*\/?\s*N|SERIAL|SN)\s*[:#-]?\s*/i,'').replace(/[^A-Za-z0-9-]/g,'');if(v.length>=4)el.serial.value=v.slice(0,40)}
- if(!el.serial.value){const candidates=lines.map(x=>x.replace(/[^A-Za-z0-9-]/g,'')).filter(x=>x.length>=7&&/[A-Za-z]/.test(x)&&/\d/.test(x));if(candidates.length)el.serial.value=candidates[0].slice(0,40)}
- return {imei:!!imei,serial:!!el.serial.value};
+ // Accept S/N only when it is actually adjacent to an S/N or SERIAL label.
+ let serial='';
+ for(let i=0;i<lines.length&&!serial;i++){
+  const line=lines[i];
+  if(/S\s*\/?\s*N|SERIAL|S[. ]?N[. ]?/i.test(line)){
+   let tail=line.replace(/.*?(?:S\s*\/?\s*N|SERIAL|S[. ]?N[. ]?)\s*[:#=\-]?/i,'').trim();
+   if(!/[A-Za-z0-9]/.test(tail))tail=(lines[i+1]||'').trim();
+   const candidate=tail.toUpperCase().replace(/[^A-Z0-9-]/g,'');
+   if(candidate.length>=5&&candidate.length<=30&&/\d/.test(candidate))serial=candidate;
+  }
+ }
+ if(serial)el.serial.value=serial;
+ return {imei:!!imei,serial:!!serial};
 }
 async function capture(){
  if(!stream||!el.video.videoWidth){say('شغّل الكاميرا أولًا.');return}
  if(!window.Tesseract){say('مكتبة قراءة النص غير متاحة. أدخل الرقمين يدويًا.');return}
  $('captureBtn').disabled=true;
  try{
-  const w=el.video.videoWidth,h=el.video.videoHeight,c=document.createElement('canvas');c.width=w*2;c.height=h*2;
-  const ctx=c.getContext('2d');ctx.drawImage(el.video,0,0,c.width,c.height);
-  const img=ctx.getImageData(0,0,c.width,c.height);for(let i=0;i<img.data.length;i+=4){const y=0.299*img.data[i]+0.587*img.data[i+1]+0.114*img.data[i+2];const v=Math.max(0,Math.min(255,(y-110)*1.55+128));img.data[i]=img.data[i+1]=img.data[i+2]=v}ctx.putImageData(img,0,0);
-  say('جارٍ قراءة الأرقام من الصورة. انتظر قليلًا…');
-  const result=await Tesseract.recognize(c,'eng',{logger:m=>{if(m.status==='recognizing text')say('جارٍ تحليل الصورة… '+Math.round((m.progress||0)*100)+'%')}});
-  const found=parseOcr(result.data.text||'');
-  if(found.imei||found.serial)say('انتهت القراءة. راجع IMEI وS/N حرفًا حرفًا؛ القراءة الآلية قد تخطئ، خاصة في الخط الصغير.');
-  else say('لم أستطع استخراج الرقمين بوضوح. قرّب الكاميرا أو حسّن الإضاءة، ويمكنك إدخالهما يدويًا.');
- }catch(e){say('حدثت مشكلة أثناء قراءة الصورة. أدخل الرقمين يدويًا.')}finally{$('captureBtn').disabled=false}
+  const w=el.video.videoWidth,h=el.video.videoHeight,c=document.createElement('canvas');
+  c.width=w*2;c.height=h*2;
+  const ctx=c.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(el.video,0,0,c.width,c.height);
+  const original=ctx.getImageData(0,0,c.width,c.height);
+  const variants=[];
+  for(const threshold of [0,155,190]){
+   const copy=document.createElement('canvas');copy.width=c.width;copy.height=c.height;
+   const x=copy.getContext('2d',{willReadFrequently:true});
+   const im=new ImageData(new Uint8ClampedArray(original.data),c.width,c.height);
+   for(let i=0;i<im.data.length;i+=4){
+    const y=0.299*im.data[i]+0.587*im.data[i+1]+0.114*im.data[i+2];
+    const v=threshold===0?Math.max(0,Math.min(255,(y-105)*1.8+128)):(y>threshold?255:0);
+    im.data[i]=im.data[i+1]=im.data[i+2]=v;
+   }
+   x.putImageData(im,0,0);variants.push(copy);
+  }
+  let combined='';
+  for(let i=0;i<variants.length;i++){
+   say('جارٍ تحسين الصورة وقراءة الأرقام… '+(i+1)+' من '+variants.length);
+   const result=await Tesseract.recognize(variants[i],'eng',{
+    logger:m=>{if(m.status==='recognizing text')say('جارٍ قراءة الصورة… '+Math.round((m.progress||0)*100)+'%')},
+    config:{tessedit_pageseg_mode: i===2?11:6}
+   });
+   combined+='\n'+(result.data.text||'');
+   const found=parseOcr(combined);
+   if(found.imei&&found.serial)break;
+  }
+  const found=parseOcr(combined);
+  if(found.imei||found.serial)say('انتهت القراءة. راجع الرقمين قبل الحفظ. إذا لم يظهر IMEI كاملًا، قرّب الكاميرا من سطر IMEI وحده والتقط مرة أخرى.');
+  else say('لم أتمكن من قراءة الرقمين. قرّب الكاميرا من سطر الرقم واجعل الصورة مستقيمة وواضحة، أو أدخل الرقمين يدويًا.');
+ }catch(e){say('حدثت مشكلة أثناء قراءة الصورة. أدخل الرقمين يدويًا.')}
+ finally{$('captureBtn').disabled=false}
 }
 function save(){
  const s=currentStudent(),imei=el.imei.value.trim().replace(/\\s/g,''),serial=el.serial.value.trim().replace(/\\s/g,'');
