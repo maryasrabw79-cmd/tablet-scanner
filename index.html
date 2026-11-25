@@ -57,8 +57,8 @@ let stream=null,records=[],students=[],worker=null;
 const STORE='yasser_tablet_scanner_roster_v3';
 function say(s){el.status.textContent=s}
 function rosterSay(s){$('rosterStatus').textContent=s}
-function load(){try{records=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(records))records=[]}catch{records=[]}render()}
-function persist(){try{localStorage.setItem(STORE,JSON.stringify(records));render()}catch(e){say('تعذر الحفظ في مساحة المتصفح. صدّر نسخة احتياطية.')}} 
+function load(){try{students=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(students))students=[]}catch{students=[]}fillStudents();render()}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify(students));render()}catch(e){say('تعذر الحفظ في مساحة المتصفح. صدّر نسخة احتياطية.')}} 
 function render(){
  $('count').textContent='('+students.length+')';const body=$('rows');body.replaceChildren();
  if(!students.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=9;td.className='empty';td.textContent='ارفع كشف الطالبات لعرض البيانات';tr.append(td);body.append(tr);return}
@@ -80,7 +80,7 @@ function parseRoster(rows){
  })).filter(s=>s.m);
  if(!students.length)throw Error('لم أجد صفوف طالبات تحتوي على مسلسل في عمود «م».');
  rosterSay('تم تحميل '+students.length+' سجلًا بنجاح. تم التعرف على الأعمدة الثمانية المطلوبة.');
- fillStudents();render();
+ fillStudents();persist();
 }
 function fillStudents(){
  const sel=$('studentSelect'),previous=sel.value;sel.replaceChildren();
@@ -134,7 +134,7 @@ function save(){
  if(!imei&&!serial){say('أدخل رقم IMEI أو S/N على الأقل.');return}
  const dup=students.find(x=>x!==s&&((imei&&x.imei===imei)||(serial&&x.serial===serial)));
  if(dup&&!confirm('هذا الرقم موجود بالفعل في سجل المسلسل '+dup.m+'. هل تريد تسجيله للطالبة الحالية؟'))return;
- s.imei=imei;s.serial=serial;render();say('تم تحديث بيانات الجهاز للطالبة ذات المسلسل '+s.m+'. لا تنس تصدير الكشف بعد الانتهاء.');
+ s.imei=imei;s.serial=serial;persist();say('تم تحديث بيانات الجهاز للطالبة ذات المسلسل '+s.m+'. لا تنس تصدير الكشف بعد الانتهاء.');
 }
 function exportRows(){return students.map(s=>({'م':s.m,'كود الطالب':s.code,'اسم الطالب':s.name,'رقم مسلسل الجهاز SN':s.serial,'رقم IMEI':s.imei,'رقم بوليصة التأمين':s.policy,'التوقيع':s.signature,'الفصل':s.className}))}
 function csv(){const heads=['م','كود الطالب','اسم الطالب','رقم مسلسل الجهاز SN','رقم IMEI','رقم بوليصة التأمين','التوقيع','الفصل'];const rows=[heads,...exportRows().map(Object.values)];const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';download(new Blob(['\\ufeff'+rows.map(r=>r.map(q).join(',')).join('\\r\\n')],{type:'text/csv;charset=utf-8'}),'كشف_أجهزة_التابلت.csv')}
